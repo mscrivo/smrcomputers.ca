@@ -29,3 +29,16 @@ test('mobile keeps the nav links reachable and the email CTA visible', async ({
   // The "Get in touch" call to action stays available.
   await expect(page.getByRole('link', { name: 'Get in touch' })).toBeVisible();
 });
+
+test('desktop Services menu reveals the service pages on hover', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'desktop-only layout');
+
+  await page.goto('/');
+  const nav = page.getByRole('navigation', { name: 'Primary' });
+  const pcBuilds = nav.getByRole('link', { name: 'Custom PC Builds' });
+  await expect(pcBuilds).toBeHidden();
+
+  await nav.getByRole('link', { name: 'Services', exact: true }).hover();
+  await pcBuilds.click();
+  await expect(page).toHaveURL(/\/custom-pc-builds$/);
+});

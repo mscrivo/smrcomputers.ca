@@ -1,5 +1,7 @@
 ---
-import { site } from '../data/site';
+import { site, services } from '../data/site';
+
+const servicePages = services.filter((service) => service.href);
 
 const navLinks = [
   { href: '/#services', label: 'Services' },
@@ -21,8 +23,42 @@ const navLinks = [
     <nav class="nav" aria-label="Primary">
       <ul class="nav-links">
         {navLinks.map((link) => (
-          <li>
-            <a href={link.href}>{link.label}</a>
+          <li class:list={{ 'has-sub': link.label === 'Services' }}>
+            <a href={link.href}>
+              {link.label}
+              {link.label === 'Services' && (
+                <svg class="chevron" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
+                </svg>
+              )}
+            </a>
+            {link.label === 'Services' && (
+              <div class="submenu">
+                <ul class="submenu-panel">
+                  {servicePages.map((service) => (
+                    <li>
+                      <a href={service.href}>
+                        <span class="submenu-icon" aria-hidden="true">
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.6"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path d={service.icon}></path>
+                          </svg>
+                        </span>
+                        {service.title}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </li>
         ))}
       </ul>
@@ -112,6 +148,105 @@ const navLinks = [
     font-size: 0.9rem;
   }
 
+  .has-sub {
+    position: relative;
+  }
+
+  .has-sub > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .has-sub:hover .chevron,
+  .has-sub:focus-within .chevron {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
+
+  /* Padding-top instead of a margin keeps the hover area unbroken
+     between the Services link and the panel. */
+  .submenu {
+    position: absolute;
+    top: 100%;
+    left: -1.25rem;
+    padding-top: 0.9rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease,
+      visibility 0.18s;
+  }
+
+  .has-sub:hover .submenu,
+  .has-sub:focus-within .submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .submenu-panel {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem;
+    min-width: 300px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background:
+      linear-gradient(135deg, rgba(56, 189, 248, 0.07), transparent 60%), var(--bg-elevated);
+    box-shadow:
+      var(--shadow-glow),
+      0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  }
+
+  .nav-links .submenu-panel a {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--radius-sm);
+    color: var(--slate-300);
+    font-size: 0.92rem;
+    white-space: nowrap;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .nav-links .submenu-panel a:hover,
+  .nav-links .submenu-panel a:focus-visible {
+    color: var(--text);
+    background: rgba(56, 189, 248, 0.08);
+  }
+
+  .submenu-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .submenu-panel a:hover .submenu-icon,
+  .submenu-panel a:focus-visible .submenu-icon {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: rgba(56, 189, 248, 0.5);
+  }
+
   /* On small screens the brand and CTA stay on the first row while the
      nav links wrap to a centered second row — keeping them reachable. */
   @media (max-width: 720px) {
@@ -141,6 +276,12 @@ const navLinks = [
       gap: 1.6rem;
       padding-top: 0.65rem;
       border-top: 1px solid var(--border);
+    }
+
+    /* Hover menus are unreliable on touch; the service cards link to these pages. */
+    .has-sub .submenu,
+    .chevron {
+      display: none;
     }
   }
 </style>
